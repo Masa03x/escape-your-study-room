@@ -8,3 +8,14 @@
 **/ios/Flutter/ephemeral/
 **/macos/Flutter/ephemeral/
 **/android/local.properties
+
+# Local Flutter scaffold generated with flutter create
+app/.metadata
+app/.gitignore
+app/android/
+app/ios/
+app/macos/
+app/web/
+app/linux/
+app/windows/
+app/pubspec.lock
