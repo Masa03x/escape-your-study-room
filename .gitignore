@@ -1,0 +1,10 @@
+.DS_Store
+**/.DS_Store
+**/.dart_tool/
+**/build/
+**/coverage/
+**/.idea/
+**/*.iml
+**/ios/Flutter/ephemeral/
+**/macos/Flutter/ephemeral/
+**/android/local.properties
