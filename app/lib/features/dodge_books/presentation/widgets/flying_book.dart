@@ -16,61 +16,86 @@ class FlyingBook extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final rotation = -0.28 + (progress * 0.5);
+    final rotation = -0.22 + (progress * 0.42);
 
     return Transform.rotate(
       angle: rotation,
-      child: Container(
-        width: 92,
-        height: 72,
-        decoration: BoxDecoration(
-          color: isDangerous ? AppColors.red : AppColors.purple,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isDangerous
-                ? const Color(0xFFFF8A8A)
-                : AppColors.purpleLight,
-            width: 2,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Color.fromRGBO(
-                isDangerous ? 239 : 124,
-                isDangerous ? 68 : 58,
-                isDangerous ? 68 : 237,
-                0.45,
-              ),
-              blurRadius: 20,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
+      child: SizedBox(
+        width: 94,
+        height: 70,
         child: Stack(
+          clipBehavior: Clip.none,
           children: [
             Positioned(
-              left: 10,
-              top: 8,
-              bottom: 8,
+              left: 5,
+              right: 0,
+              top: 6,
+              bottom: 0,
               child: Container(
-                width: 8,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF3A164F),
-                  borderRadius: BorderRadius.circular(6),
+                  color: const Color(0xFFD7CAB9),
+                  borderRadius: BorderRadius.circular(14),
                 ),
               ),
             ),
-            const Center(
-              child: Text(
-                '📕',
-                style: TextStyle(fontSize: 35),
-              ),
-            ),
-            Positioned(
-              right: 9,
-              top: 8,
-              child: Text(
-                isDangerous ? '😠' : '😵',
-                style: const TextStyle(fontSize: 18),
+            Positioned.fill(
+              right: 5,
+              bottom: 6,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                decoration: BoxDecoration(
+                  color: isDangerous
+                      ? AppColors.coral
+                      : AppColors.teal,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: isDangerous
+                          ? const Color(0x44E76F51)
+                          : const Color(0x442A9D8F),
+                      blurRadius: 14,
+                      offset: const Offset(0, 7),
+                    ),
+                  ],
+                ),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      left: 10,
+                      top: 8,
+                      bottom: 8,
+                      child: Container(
+                        width: 7,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.32),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: Icon(
+                        isDangerous
+                            ? Icons.sentiment_very_dissatisfied_rounded
+                            : Icons.sentiment_dissatisfied_rounded,
+                        size: 35,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const Positioned(
+                      right: 8,
+                      bottom: 7,
+                      child: Icon(
+                        Icons.auto_stories_rounded,
+                        size: 17,
+                        color: Colors.white70,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
