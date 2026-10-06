@@ -11,13 +11,7 @@ import '../domain/squat_detector.dart';
 import 'widgets/progress_segments.dart';
 import 'widgets/study_room_scene.dart';
 
-enum ChallengeView {
-  intro,
-  countdown,
-  playing,
-  paused,
-  completed,
-}
+enum ChallengeView { intro, countdown, playing, paused, completed }
 
 class DodgeBooksScreen extends StatefulWidget {
   const DodgeBooksScreen({super.key});
@@ -155,51 +149,44 @@ class _DodgeBooksScreenState extends State<DodgeBooksScreen> {
 
     final token = _sessionToken;
 
-    _roundTimer = Timer.periodic(
-      const Duration(milliseconds: 45),
-      (timer) {
-        if (!mounted ||
-            token != _sessionToken ||
-            _view != ChallengeView.playing) {
-          timer.cancel();
-          return;
-        }
+    _roundTimer = Timer.periodic(const Duration(milliseconds: 45), (timer) {
+      if (!mounted ||
+          token != _sessionToken ||
+          _view != ChallengeView.playing) {
+        timer.cancel();
+        return;
+      }
 
-        final nextProgress = _bookProgress + 0.022;
-        final nextCanDodge =
-            nextProgress >= 0.54 && nextProgress <= 0.84;
+      final nextProgress = _bookProgress + 0.022;
+      final nextCanDodge = nextProgress >= 0.54 && nextProgress <= 0.84;
+
+      setState(() {
+        _bookProgress = nextProgress;
+        _canDodge = nextCanDodge;
+
+        if (nextCanDodge) {
+          _feedback = 'Squat now to dodge!';
+        }
+      });
+
+      if (nextProgress >= 1) {
+        timer.cancel();
 
         setState(() {
-          _bookProgress = nextProgress;
-          _canDodge = nextCanDodge;
-
-          if (nextCanDodge) {
-            _feedback = 'Squat now to dodge!';
-          }
+          _bookProgress = 1;
+          _canDodge = false;
+          _feedback = 'That one got past you. Next book!';
         });
 
-        if (nextProgress >= 1) {
-          timer.cancel();
-
-          setState(() {
-            _bookProgress = 1;
-            _canDodge = false;
-            _feedback = 'That one got past you. Next book!';
-          });
-
-          _scheduleNextRound(
-            token: token,
-            delay: const Duration(milliseconds: 700),
-          );
-        }
-      },
-    );
+        _scheduleNextRound(
+          token: token,
+          delay: const Duration(milliseconds: 700),
+        );
+      }
+    });
   }
 
-  void _scheduleNextRound({
-    required int token,
-    required Duration delay,
-  }) {
+  void _scheduleNextRound({required int token, required Duration delay}) {
     Future<void>.delayed(delay, () {
       if (!mounted ||
           token != _sessionToken ||
@@ -213,9 +200,7 @@ class _DodgeBooksScreenState extends State<DodgeBooksScreen> {
   }
 
   void _attemptDodge() {
-    if (_view != ChallengeView.playing ||
-        !_canDodge ||
-        _game.isComplete) {
+    if (_view != ChallengeView.playing || !_canDodge || _game.isComplete) {
       return;
     }
 
@@ -229,9 +214,10 @@ class _DodgeBooksScreenState extends State<DodgeBooksScreen> {
     setState(() {
       _canDodge = false;
       _squatting = true;
-      _feedback = _game.isComplete
-          ? 'Final dodge! The exit is open.'
-          : 'Nice dodge! That book almost got you.';
+      _feedback =
+          _game.isComplete
+              ? 'Final dodge! The exit is open.'
+              : 'Nice dodge! That book almost got you.';
     });
 
     final token = _sessionToken;
@@ -247,10 +233,7 @@ class _DodgeBooksScreenState extends State<DodgeBooksScreen> {
       return;
     }
 
-    _scheduleNextRound(
-      token: token,
-      delay: const Duration(milliseconds: 750),
-    );
+    _scheduleNextRound(token: token, delay: const Duration(milliseconds: 750));
   }
 
   void _pause() {
@@ -356,10 +339,7 @@ class _DodgeBooksScreenState extends State<DodgeBooksScreen> {
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [
-                  Color(0xFF211A59),
-                  AppColors.card,
-                ],
+                colors: [Color(0xFF211A59), AppColors.card],
               ),
               borderRadius: BorderRadius.circular(28),
               border: Border.all(color: AppColors.border),
@@ -417,10 +397,7 @@ class _DodgeBooksScreenState extends State<DodgeBooksScreen> {
               ),
               child: const Text(
                 'Start Challenge',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w900,
-                ),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
               ),
             ),
           ),
@@ -450,9 +427,7 @@ class _DodgeBooksScreenState extends State<DodgeBooksScreen> {
               _countdown == 0 ? 'MOVE!' : '$_countdown',
               key: ValueKey(_countdown),
               style: TextStyle(
-                color: _countdown == 0
-                    ? AppColors.greenLight
-                    : AppColors.text,
+                color: _countdown == 0 ? AppColors.greenLight : AppColors.text,
                 fontSize: _countdown == 0 ? 72 : 110,
                 fontWeight: FontWeight.w900,
               ),
@@ -514,14 +489,9 @@ class _DodgeBooksScreenState extends State<DodgeBooksScreen> {
           AnimatedContainer(
             duration: const Duration(milliseconds: 180),
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
-              color: _canDodge
-                  ? const Color(0xFF3A2A13)
-                  : AppColors.card,
+              color: _canDodge ? const Color(0xFF3A2A13) : AppColors.card,
               borderRadius: BorderRadius.circular(18),
               border: Border.all(
                 color: _canDodge ? AppColors.orange : AppColors.border,
@@ -659,10 +629,7 @@ class _DodgeBooksScreenState extends State<DodgeBooksScreen> {
             ),
             const SizedBox(height: 26),
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 18,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
               decoration: BoxDecoration(
                 color: AppColors.card,
                 borderRadius: BorderRadius.circular(20),
@@ -706,11 +673,7 @@ class _DodgeBooksScreenState extends State<DodgeBooksScreen> {
 }
 
 class _InfoRow extends StatelessWidget {
-  const _InfoRow({
-    required this.icon,
-    required this.title,
-    required this.text,
-  });
+  const _InfoRow({required this.icon, required this.title, required this.text});
 
   final IconData icon;
   final String title;
@@ -781,15 +744,10 @@ class _PauseButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      child: primary
-          ? FilledButton(
-              onPressed: onPressed,
-              child: Text(text),
-            )
-          : OutlinedButton(
-              onPressed: onPressed,
-              child: Text(text),
-            ),
+      child:
+          primary
+              ? FilledButton(onPressed: onPressed, child: Text(text))
+              : OutlinedButton(onPressed: onPressed, child: Text(text)),
     );
   }
 }
