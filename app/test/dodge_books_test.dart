@@ -1,120 +1,64 @@
 import 'package:escape_your_study_room/features/dodge_books/domain/dodge_books_game.dart';
-import 'package:escape_your_study_room/features/dodge_books/domain/squat_detector.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('DodgeBooksGame', () {
-    test('starts with zero dodged books', () {
+    test('starts with zero progress', () {
       final game = DodgeBooksGame();
 
       expect(game.dodgedBooks, 0);
-      expect(game.isComplete, isFalse);
-      expect(game.progress, 0);
+
+      expect(game.missedBooks, 0);
+
+      expect(game.isComplete, false);
     });
 
-    test('registers dodges until the target is reached', () {
+    test('registers successful dodges', () {
       final game = DodgeBooksGame();
 
-      for (var i = 0; i < 5; i++) {
-        expect(game.registerDodge(), isTrue);
-      }
+      game.registerDodge();
+      game.registerDodge();
 
-      expect(game.dodgedBooks, 5);
-      expect(game.isComplete, isTrue);
-      expect(game.progress, 1);
+      expect(game.dodgedBooks, 2);
+
+      expect(game.progress, 0.4);
     });
 
-    test('does not add extra dodges after completion', () {
+    test('registers missed books', () {
+      final game = DodgeBooksGame();
+
+      game.registerMiss();
+
+      expect(game.missedBooks, 1);
+
+      expect(game.dodgedBooks, 0);
+    });
+
+    test('challenge completes after five dodges', () {
       final game = DodgeBooksGame();
 
       for (var i = 0; i < 5; i++) {
         game.registerDodge();
       }
 
-      expect(game.registerDodge(), isFalse);
       expect(game.dodgedBooks, 5);
+
+      expect(game.isComplete, true);
+
+      expect(game.progress, 1);
     });
 
-    test('reset clears progress', () {
+    test('reset clears the challenge', () {
       final game = DodgeBooksGame();
+
       game.registerDodge();
-      game.registerDodge();
+      game.registerMiss();
 
       game.reset();
 
       expect(game.dodgedBooks, 0);
-      expect(game.isComplete, isFalse);
-    });
-  });
 
-  group('SquatDetector', () {
-    test('detects a down then up movement inside the allowed time', () {
-      final detector = SquatDetector();
-      final start = DateTime(2026, 9, 27, 12);
-
-      expect(
-        detector.addSample(
-          verticalAcceleration: -2.2,
-          time: start,
-        ),
-        isFalse,
-      );
-
-      expect(
-        detector.addSample(
-          verticalAcceleration: 1.8,
-          time: start.add(const Duration(milliseconds: 450)),
-        ),
-        isTrue,
-      );
-    });
-
-    test('does not detect a movement sequence that is too slow', () {
-      final detector = SquatDetector();
-      final start = DateTime(2026, 9, 27, 12);
-
-      detector.addSample(
-        verticalAcceleration: -2.2,
-        time: start,
-      );
-
-      expect(
-        detector.addSample(
-          verticalAcceleration: 1.8,
-          time: start.add(const Duration(seconds: 2)),
-        ),
-        isFalse,
-      );
-    });
-
-    test('applies a cooldown after a detected squat', () {
-      final detector = SquatDetector();
-      final start = DateTime(2026, 9, 27, 12);
-
-      detector.addSample(
-        verticalAcceleration: -2.2,
-        time: start,
-      );
-      expect(
-        detector.addSample(
-          verticalAcceleration: 1.8,
-          time: start.add(const Duration(milliseconds: 350)),
-        ),
-        isTrue,
-      );
-
-      detector.addSample(
-        verticalAcceleration: -2.4,
-        time: start.add(const Duration(milliseconds: 500)),
-      );
-
-      expect(
-        detector.addSample(
-          verticalAcceleration: 2,
-          time: start.add(const Duration(milliseconds: 700)),
-        ),
-        isFalse,
-      );
+      expect(game.missedBooks, 0);
     });
   });
 }

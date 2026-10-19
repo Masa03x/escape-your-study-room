@@ -6,6 +6,9 @@ void main() {
     await tester.pumpWidget(const EscapeYourStudyRoomApp());
 
     expect(find.text('Dodge the\nFlying Books'), findsOneWidget);
+
     expect(find.text('Start Challenge'), findsOneWidget);
+
+    expect(find.text('How to dodge'), findsOneWidget);
   });
 }

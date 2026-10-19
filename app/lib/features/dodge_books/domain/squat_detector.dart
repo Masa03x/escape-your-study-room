@@ -8,6 +8,7 @@ class SquatDetector {
 
   final double downThreshold;
   final double upThreshold;
+
   final Duration maximumSequence;
   final Duration cooldown;
 
@@ -19,29 +20,35 @@ class SquatDetector {
     required DateTime time,
   }) {
     final lastSquat = _lastDetectedSquatAt;
+
     if (lastSquat != null && time.difference(lastSquat) < cooldown) {
       return false;
     }
 
     if (verticalAcceleration <= downThreshold) {
       _downMovementAt = time;
+
       return false;
     }
 
     final downTime = _downMovementAt;
+
     if (downTime == null) {
       return false;
     }
 
     final elapsed = time.difference(downTime);
+
     if (elapsed > maximumSequence) {
       _downMovementAt = null;
+
       return false;
     }
 
     if (verticalAcceleration >= upThreshold) {
       _downMovementAt = null;
       _lastDetectedSquatAt = time;
+
       return true;
     }
 
