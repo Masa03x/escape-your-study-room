@@ -382,7 +382,7 @@ class _DistractionObstacle extends StatelessWidget {
               child: Container(
                 width: 88,
                 height: 70,
-                padding: const EdgeInsets.all(11),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                 decoration: BoxDecoration(
                   color: AppColors.purple,
                   borderRadius: BorderRadius.circular(17),
@@ -396,20 +396,25 @@ class _DistractionObstacle extends StatelessWidget {
                   ],
                 ),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(
                       Icons.notifications_active_rounded,
                       color: Colors.white,
-                      size: 26,
+                      size: 20,
                     ),
-                    const Spacer(),
-                    Text(
-                      label,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 8,
-                        fontWeight: FontWeight.w900,
+                    const SizedBox(height: 3),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
                     ),
                   ],

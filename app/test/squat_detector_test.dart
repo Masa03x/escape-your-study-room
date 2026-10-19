@@ -1,153 +1,109 @@
-class SquatDetector {
-  SquatDetector({
-    this.downThreshold = -1.8,
-    this.upThreshold = 1.3,
-    this.maximumSequence = const Duration(milliseconds: 1200),
-    this.cooldown = const Duration(milliseconds: 900),
+import 'package:escape_your_study_room/features/dodge_books/domain/squat_detector.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  group('SquatDetector', () {
+    test('detects a complete squat movement', () {
+      final detector = SquatDetector();
+      final startTime = DateTime(2026, 1, 1, 12);
+
+      expect(
+        detector.addSample(verticalAcceleration: -2.0, time: startTime),
+        false,
+      );
+
+      expect(
+        detector.addSample(
+          verticalAcceleration: 1.5,
+          time: startTime.add(const Duration(milliseconds: 500)),
+        ),
+        true,
+      );
+    });
+
+    test('ignores movement below the squat threshold', () {
+      final detector = SquatDetector();
+      final startTime = DateTime(2026, 1, 1, 12);
+
+      expect(
+        detector.addSample(verticalAcceleration: -0.8, time: startTime),
+        false,
+      );
+
+      expect(
+        detector.addSample(
+          verticalAcceleration: 0.7,
+          time: startTime.add(const Duration(milliseconds: 400)),
+        ),
+        false,
+      );
+    });
   });
 
-  final double downThreshold;
-  final double upThreshold;
+  group('JumpDetector', () {
+    test('detects a complete jump movement', () {
+      final detector = JumpDetector();
+      final startTime = DateTime(2026, 1, 1, 12);
 
-  final Duration maximumSequence;
-  final Duration cooldown;
+      expect(
+        detector.addSample(verticalAcceleration: -3.5, time: startTime),
+        false,
+      );
 
-  DateTime? _downMovementAt;
-  DateTime? _lastDetectedAt;
+      expect(
+        detector.addSample(
+          verticalAcceleration: 3.0,
+          time: startTime.add(const Duration(milliseconds: 400)),
+        ),
+        true,
+      );
+    });
 
-  bool addSample({
-    required double verticalAcceleration,
-    required DateTime time,
-  }) {
-    final lastDetected = _lastDetectedAt;
+    test('ignores weak jump movement', () {
+      final detector = JumpDetector();
+      final startTime = DateTime(2026, 1, 1, 12);
 
-    if (lastDetected != null && time.difference(lastDetected) < cooldown) {
-      return false;
-    }
+      expect(
+        detector.addSample(verticalAcceleration: -1.0, time: startTime),
+        false,
+      );
 
-    if (verticalAcceleration <= downThreshold) {
-      _downMovementAt = time;
-      return false;
-    }
-
-    final downTime = _downMovementAt;
-
-    if (downTime == null) {
-      return false;
-    }
-
-    final elapsed = time.difference(downTime);
-
-    if (elapsed > maximumSequence) {
-      _downMovementAt = null;
-      return false;
-    }
-
-    if (verticalAcceleration >= upThreshold) {
-      _downMovementAt = null;
-      _lastDetectedAt = time;
-      return true;
-    }
-
-    return false;
-  }
-
-  void reset() {
-    _downMovementAt = null;
-    _lastDetectedAt = null;
-  }
-}
-
-class JumpDetector {
-  JumpDetector({
-    this.downThreshold = -3.0,
-    this.upThreshold = 2.7,
-    this.maximumSequence = const Duration(milliseconds: 900),
-    this.cooldown = const Duration(milliseconds: 1100),
+      expect(
+        detector.addSample(
+          verticalAcceleration: 1.0,
+          time: startTime.add(const Duration(milliseconds: 300)),
+        ),
+        false,
+      );
+    });
   });
 
-  final double downThreshold;
-  final double upThreshold;
+  group('SideStepDetector', () {
+    test('detects movement to the right', () {
+      final detector = SideStepDetector();
+      final time = DateTime(2026, 1, 1, 12);
 
-  final Duration maximumSequence;
-  final Duration cooldown;
+      expect(detector.addSample(horizontalAcceleration: 2.5, time: time), true);
+    });
 
-  DateTime? _firstMovementAt;
-  DateTime? _lastDetectedAt;
+    test('detects movement to the left', () {
+      final detector = SideStepDetector();
+      final time = DateTime(2026, 1, 1, 12);
 
-  bool addSample({
-    required double verticalAcceleration,
-    required DateTime time,
-  }) {
-    final lastDetected = _lastDetectedAt;
+      expect(
+        detector.addSample(horizontalAcceleration: -2.5, time: time),
+        true,
+      );
+    });
 
-    if (lastDetected != null && time.difference(lastDetected) < cooldown) {
-      return false;
-    }
+    test('ignores small horizontal movement', () {
+      final detector = SideStepDetector();
+      final time = DateTime(2026, 1, 1, 12);
 
-    if (verticalAcceleration <= downThreshold) {
-      _firstMovementAt = time;
-      return false;
-    }
-
-    final firstMovement = _firstMovementAt;
-
-    if (firstMovement == null) {
-      return false;
-    }
-
-    final elapsed = time.difference(firstMovement);
-
-    if (elapsed > maximumSequence) {
-      _firstMovementAt = null;
-      return false;
-    }
-
-    if (verticalAcceleration >= upThreshold) {
-      _firstMovementAt = null;
-      _lastDetectedAt = time;
-      return true;
-    }
-
-    return false;
-  }
-
-  void reset() {
-    _firstMovementAt = null;
-    _lastDetectedAt = null;
-  }
-}
-
-class SideStepDetector {
-  SideStepDetector({
-    this.horizontalThreshold = 2.2,
-    this.cooldown = const Duration(milliseconds: 900),
+      expect(
+        detector.addSample(horizontalAcceleration: 1.0, time: time),
+        false,
+      );
+    });
   });
-
-  final double horizontalThreshold;
-  final Duration cooldown;
-
-  DateTime? _lastDetectedAt;
-
-  bool addSample({
-    required double horizontalAcceleration,
-    required DateTime time,
-  }) {
-    final lastDetected = _lastDetectedAt;
-
-    if (lastDetected != null && time.difference(lastDetected) < cooldown) {
-      return false;
-    }
-
-    if (horizontalAcceleration.abs() >= horizontalThreshold) {
-      _lastDetectedAt = time;
-      return true;
-    }
-
-    return false;
-  }
-
-  void reset() {
-    _lastDetectedAt = null;
-  }
 }
