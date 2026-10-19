@@ -16,26 +16,20 @@ class ProgressSegments extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: List.generate(total, (index) {
-        final isCompleted = index < completed;
+        final active = index < completed;
 
         return Expanded(
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
+            duration: const Duration(milliseconds: 220),
             height: 11,
             margin: EdgeInsets.only(right: index == total - 1 ? 0 : 6),
             decoration: BoxDecoration(
-              color: isCompleted ? AppColors.teal : AppColors.card,
+              color: active ? AppColors.teal : AppColors.card,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isCompleted ? AppColors.teal : AppColors.border,
+                color: active ? AppColors.teal : AppColors.border,
                 width: 2,
               ),
-              boxShadow:
-                  isCompleted
-                      ? const [
-                        BoxShadow(color: Color(0x332A9D8F), blurRadius: 8),
-                      ]
-                      : null,
             ),
           ),
         );

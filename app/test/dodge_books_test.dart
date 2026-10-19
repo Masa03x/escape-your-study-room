@@ -2,63 +2,61 @@ import 'package:escape_your_study_room/features/dodge_books/domain/dodge_books_g
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('DodgeBooksGame', () {
-    test('starts with zero progress', () {
-      final game = DodgeBooksGame();
+  group('ChallengeGame', () {
+    test('starts empty', () {
+      final game = ChallengeGame();
 
-      expect(game.dodgedBooks, 0);
+      expect(game.successes, 0);
 
-      expect(game.missedBooks, 0);
+      expect(game.misses, 0);
 
       expect(game.isComplete, false);
     });
 
-    test('registers successful dodges', () {
-      final game = DodgeBooksGame();
+    test('registers successful moves', () {
+      final game = ChallengeGame();
 
-      game.registerDodge();
-      game.registerDodge();
+      game.registerSuccess();
+      game.registerSuccess();
 
-      expect(game.dodgedBooks, 2);
+      expect(game.successes, 2);
 
       expect(game.progress, 0.4);
     });
 
-    test('registers missed books', () {
-      final game = DodgeBooksGame();
+    test('registers missed attempts', () {
+      final game = ChallengeGame();
 
       game.registerMiss();
 
-      expect(game.missedBooks, 1);
-
-      expect(game.dodgedBooks, 0);
+      expect(game.misses, 1);
     });
 
-    test('challenge completes after five dodges', () {
-      final game = DodgeBooksGame();
+    test('completes after five successes', () {
+      final game = ChallengeGame();
 
       for (var i = 0; i < 5; i++) {
-        game.registerDodge();
+        game.registerSuccess();
       }
 
-      expect(game.dodgedBooks, 5);
+      expect(game.successes, 5);
 
       expect(game.isComplete, true);
 
       expect(game.progress, 1);
     });
 
-    test('reset clears the challenge', () {
-      final game = DodgeBooksGame();
+    test('reset clears progress', () {
+      final game = ChallengeGame();
 
-      game.registerDodge();
+      game.registerSuccess();
       game.registerMiss();
 
       game.reset();
 
-      expect(game.dodgedBooks, 0);
+      expect(game.successes, 0);
 
-      expect(game.missedBooks, 0);
+      expect(game.misses, 0);
     });
   });
 }

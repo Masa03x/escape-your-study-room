@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 
 abstract final class AppColors {
-  // Final design:
-  // Version 2 wellbeing style
-  // + stronger gameplay feedback from Version 3
-  // + playful elements from Version 1
-
   static const background = Color(0xFFFFF8EC);
   static const surface = Color(0xFFFFFCF6);
   static const card = Color(0xFFFFFFFF);
@@ -18,7 +13,7 @@ abstract final class AppColors {
   static const mint = Color(0xFFBFE3DB);
 
   static const coral = Color(0xFFE76F51);
-  static const coralLight = Color(0xFFF6B09E);
+  static const coralLight = Color(0xFFF4A28C);
   static const coralSoft = Color(0xFFFFE5DE);
 
   static const yellow = Color(0xFFF4C95D);
@@ -26,6 +21,12 @@ abstract final class AppColors {
 
   static const green = Color(0xFF5FAF7B);
   static const greenLight = Color(0xFFDDF3E5);
+
+  static const blue = Color(0xFF5B8FD8);
+  static const blueSoft = Color(0xFFE3EEFF);
+
+  static const purple = Color(0xFF8A72B4);
+  static const purpleSoft = Color(0xFFEDE5FA);
 
   static const red = Color(0xFFD95D54);
   static const redSoft = Color(0xFFFFE7E3);

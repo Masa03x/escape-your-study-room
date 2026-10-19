@@ -1,39 +1,30 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../domain/dodge_books_game.dart';
 import 'flying_book.dart';
+import 'game_character.dart';
 
-class StudyRoomScene extends StatelessWidget {
-  const StudyRoomScene({
-    required this.bookProgress,
-    required this.canDodge,
-    required this.squatting,
-    required this.dodgedBooks,
+class ChallengeScene extends StatelessWidget {
+  const ChallengeScene({
+    required this.type,
+    required this.obstacleProgress,
+    required this.canAct,
+    required this.actionActive,
+    required this.completed,
     required this.roundNumber,
     super.key,
   });
 
-  final double bookProgress;
-  final bool canDodge;
-  final bool squatting;
-  final int dodgedBooks;
+  final ChallengeType type;
+
+  final double obstacleProgress;
+
+  final bool canAct;
+  final bool actionActive;
+
+  final int completed;
   final int roundNumber;
-
-  static const List<String> _bookTitles = [
-    'MATH',
-    'DEADLINE',
-    'ESSAY',
-    'GROUP WORK',
-    '8AM CLASS',
-  ];
-
-  static const List<Color> _bookColors = [
-    AppColors.teal,
-    Color(0xFF7087C4),
-    Color(0xFFD88B5B),
-    Color(0xFF9B75B5),
-    Color(0xFF5FAF7B),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -42,137 +33,69 @@ class StudyRoomScene extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final width = constraints.maxWidth;
-
           final height = constraints.maxHeight;
 
-          final bookLeft = width * (0.88 - (bookProgress * 0.78));
+          final progress = obstacleProgress.clamp(0.0, 1.0);
 
-          final bookTop =
-              height * 0.29 - flyingBookVerticalOffset(bookProgress);
-
-          final safeRound = roundNumber <= 0 ? 0 : roundNumber - 1;
-
-          final title = _bookTitles[safeRound % _bookTitles.length];
-
-          final color = _bookColors[safeRound % _bookColors.length];
+          final obstacleLeft = width * (0.93 - (progress * 0.80));
 
           return Stack(
             fit: StackFit.expand,
             children: [
-              const DecoratedBox(
-                decoration: BoxDecoration(color: Color(0xFFFFF1D8)),
-              ),
+              const _RoomBackground(),
 
-              Positioned(
-                left: -50,
-                top: -50,
-                child: Container(
-                  width: 165,
-                  height: 165,
-                  decoration: const BoxDecoration(
-                    color: Color(0x22F4C95D),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
+              Positioned(left: 17, top: 17, child: _MissionLabel(type: type)),
 
-              const Positioned(right: 20, top: 22, child: _Window()),
+              const Positioned(right: 18, top: 20, child: _Window()),
 
-              Positioned(
-                left: 18,
-                top: 24,
-                child: _Bookshelf(progress: dodgedBooks),
-              ),
-
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                height: height * 0.28,
-                child: const DecoratedBox(
-                  decoration: BoxDecoration(color: Color(0xFFE3C49A)),
-                ),
-              ),
-
-              Positioned(
-                left: width * 0.15,
-                right: width * 0.15,
-                bottom: 18,
-                child: Container(
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: AppColors.mint,
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                ),
-              ),
+              const Positioned(left: 17, bottom: 58, child: _Desk()),
 
               Positioned(
                 right: 18,
-                bottom: 42,
-                child: _ExitDoor(progress: dodgedBooks),
+                bottom: 41,
+                child: _ExitDoor(completed: completed),
               ),
 
               Positioned(
                 left: 24,
-                bottom: squatting ? 29 : 34,
-                child: _Student(squatting: squatting),
-              ),
-
-              Positioned(
-                left: bookLeft,
-                top: bookTop,
-                child: FlyingBook(
-                  progress: bookProgress,
-                  isDangerous: canDodge,
-                  title: title,
-                  color: color,
+                bottom: 35,
+                child: GameCharacter(
+                  type: type,
+                  actionActive: actionActive,
+                  sideDirection: roundNumber,
                 ),
               ),
 
-              if (canDodge)
+              if (type == ChallengeType.jumpCables)
                 Positioned(
-                  left: 16,
-                  right: 16,
-                  bottom: 12,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 13,
-                      horizontal: 18,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.coral,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color(0x55E76F51),
-                          blurRadius: 18,
-                          offset: Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.keyboard_double_arrow_down_rounded,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                        SizedBox(width: 7),
-                        Text(
-                          'SQUAT NOW!',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                      ],
-                    ),
+                  left: obstacleLeft,
+                  bottom: 43,
+                  child: GameObstacle(
+                    type: type,
+                    isDangerous: canAct,
+                    index: roundNumber,
                   ),
+                )
+              else
+                Positioned(
+                  left: obstacleLeft,
+                  top:
+                      type == ChallengeType.flyingBooks
+                          ? height * 0.28 - gameObstacleVerticalOffset(progress)
+                          : height * 0.33,
+                  child: GameObstacle(
+                    type: type,
+                    isDangerous: canAct,
+                    index: roundNumber,
+                  ),
+                ),
+
+              if (canAct)
+                Positioned(
+                  left: 15,
+                  right: 15,
+                  bottom: 11,
+                  child: _ActionBanner(type: type),
                 ),
             ],
           );
@@ -182,135 +105,156 @@ class StudyRoomScene extends StatelessWidget {
   }
 }
 
-class _Student extends StatelessWidget {
-  const _Student({required this.squatting});
-
-  final bool squatting;
+class _RoomBackground extends StatelessWidget {
+  const _RoomBackground();
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 180),
-      width: squatting ? 84 : 72,
-      height: squatting ? 75 : 116,
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 180),
-            top: squatting ? 18 : 0,
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF0C7A5),
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 3),
-              ),
-              child: const Icon(
-                Icons.face_rounded,
-                color: AppColors.textSoft,
-                size: 26,
-              ),
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        const ColoredBox(color: Color(0xFFFFF1D8)),
+
+        Positioned(
+          left: -60,
+          top: -65,
+          child: Container(
+            width: 190,
+            height: 190,
+            decoration: const BoxDecoration(
+              color: Color(0x22F4C95D),
+              shape: BoxShape.circle,
             ),
           ),
+        ),
 
-          Positioned(
-            bottom: squatting ? 5 : 18,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              width: squatting ? 78 : 52,
-              height: squatting ? 39 : 65,
-              decoration: BoxDecoration(
-                color: AppColors.teal,
-                borderRadius: BorderRadius.circular(squatting ? 22 : 18),
-                border: Border.all(color: Colors.white, width: 3),
-              ),
+        Positioned(
+          right: -65,
+          top: 95,
+          child: Container(
+            width: 150,
+            height: 150,
+            decoration: const BoxDecoration(
+              color: Color(0x202A9D8F),
+              shape: BoxShape.circle,
             ),
           ),
+        ),
 
-          if (!squatting) ...[
-            Positioned(
-              left: 18,
-              bottom: 0,
-              child: Container(
-                width: 12,
-                height: 30,
-                decoration: BoxDecoration(
-                  color: AppColors.textSoft,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
+        const Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: 90,
+          child: ColoredBox(color: Color(0xFFE0BE91)),
+        ),
+
+        Positioned(
+          left: 55,
+          right: 55,
+          bottom: 17,
+          child: Container(
+            height: 31,
+            decoration: BoxDecoration(
+              color: AppColors.mint,
+              borderRadius: BorderRadius.circular(100),
             ),
-            Positioned(
-              right: 18,
-              bottom: 0,
-              child: Container(
-                width: 12,
-                height: 30,
-                decoration: BoxDecoration(
-                  color: AppColors.textSoft,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
+          ),
+        ),
+
+        const Positioned(
+          left: 125,
+          top: 35,
+          child: _StickyNote(text: 'FOCUS!', angle: -0.08),
+        ),
+
+        const Positioned(
+          right: 118,
+          top: 94,
+          child: _StickyNote(text: 'YOU GOT\nTHIS', angle: 0.09),
+        ),
+
+        const Positioned(
+          left: 110,
+          top: 118,
+          child: Icon(Icons.star_rounded, color: AppColors.yellow, size: 16),
+        ),
+      ],
+    );
+  }
+}
+
+class _StickyNote extends StatelessWidget {
+  const _StickyNote({required this.text, required this.angle});
+
+  final String text;
+  final double angle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.rotate(
+      angle: angle,
+      child: Container(
+        width: 50,
+        height: 44,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: AppColors.yellowSoft,
+          borderRadius: BorderRadius.circular(3),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x12000000),
+              blurRadius: 5,
+              offset: Offset(0, 3),
             ),
           ],
-        ],
+        ),
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: AppColors.textSoft,
+            fontSize: 7,
+            height: 1.1,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
       ),
     );
   }
 }
 
-class _Bookshelf extends StatelessWidget {
-  const _Bookshelf({required this.progress});
+class _MissionLabel extends StatelessWidget {
+  const _MissionLabel({required this.type});
 
-  final int progress;
+  final ChallengeType type;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 80,
-      height: 112,
-      padding: const EdgeInsets.all(9),
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFB88157),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFF9E6C48), width: 2),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _bookRow(progress >= 1),
-          _bookRow(progress >= 3),
-          _bookRow(progress >= 5),
-        ],
-      ),
-    );
-  }
-
-  Widget _bookRow(bool defeated) {
-    return Container(
-      height: 24,
-      padding: const EdgeInsets.symmetric(horizontal: 5),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF2DEC2),
-        borderRadius: BorderRadius.circular(6),
+        color: Colors.white.withValues(alpha: 0.88),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.menu_book_rounded,
-            size: 16,
-            color: defeated ? AppColors.teal : AppColors.coral,
-          ),
-          const SizedBox(width: 4),
-          Icon(
-            defeated
-                ? Icons.check_circle_rounded
-                : Icons.sentiment_dissatisfied_rounded,
+          const Icon(
+            Icons.videogame_asset_rounded,
             size: 14,
-            color: defeated ? AppColors.teal : AppColors.coral,
+            color: AppColors.teal,
+          ),
+          const SizedBox(width: 5),
+          Text(
+            type.shortTitle.toUpperCase(),
+            style: const TextStyle(
+              color: AppColors.tealDark,
+              fontSize: 8,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.8,
+            ),
           ),
         ],
       ),
@@ -324,34 +268,35 @@ class _Window extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 88,
-      height: 72,
+      width: 83,
+      height: 69,
       decoration: BoxDecoration(
         color: const Color(0xFFBDE5F2),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.white, width: 4),
+        boxShadow: const [BoxShadow(color: Color(0x16A3D8E8), blurRadius: 10)],
       ),
       child: Stack(
         children: [
           const Positioned(
-            right: 9,
-            top: 7,
+            right: 8,
+            top: 6,
             child: Icon(
               Icons.wb_sunny_rounded,
               color: AppColors.yellow,
-              size: 25,
+              size: 22,
             ),
           ),
           Positioned(
             left: 0,
             right: 0,
-            top: 32,
+            top: 30,
             child: Container(height: 3, color: Colors.white),
           ),
           Positioned(
             top: 0,
             bottom: 0,
-            left: 40,
+            left: 38,
             child: Container(width: 3, color: Colors.white),
           ),
         ],
@@ -360,35 +305,106 @@ class _Window extends StatelessWidget {
   }
 }
 
-class _ExitDoor extends StatelessWidget {
-  const _ExitDoor({required this.progress});
-
-  final int progress;
+class _Desk extends StatelessWidget {
+  const _Desk();
 
   @override
   Widget build(BuildContext context) {
-    final almostOpen = progress >= 4;
+    return SizedBox(
+      width: 110,
+      height: 90,
+      child: Stack(
+        children: [
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 35,
+            child: Container(
+              height: 11,
+              decoration: BoxDecoration(
+                color: const Color(0xFFA56E43),
+                borderRadius: BorderRadius.circular(5),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 9,
+            top: 46,
+            child: Container(
+              width: 8,
+              height: 43,
+              color: const Color(0xFF8C5C38),
+            ),
+          ),
+          Positioned(
+            right: 9,
+            top: 46,
+            child: Container(
+              width: 8,
+              height: 43,
+              color: const Color(0xFF8C5C38),
+            ),
+          ),
+          Positioned(
+            left: 24,
+            top: 2,
+            child: Container(
+              width: 59,
+              height: 37,
+              decoration: BoxDecoration(
+                color: AppColors.textSoft,
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+              child: const Center(
+                child: Text(
+                  '</study>',
+                  style: TextStyle(
+                    color: AppColors.mint,
+                    fontSize: 8,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const Positioned(
+            right: 3,
+            top: 10,
+            child: Icon(Icons.coffee_rounded, color: AppColors.coral, size: 27),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
-    final open = progress >= 5;
+class _ExitDoor extends StatelessWidget {
+  const _ExitDoor({required this.completed});
+
+  final int completed;
+
+  @override
+  Widget build(BuildContext context) {
+    final close = completed >= 4;
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      width: 69,
-      height: 117,
+      duration: const Duration(milliseconds: 250),
+      width: 67,
+      height: 116,
       decoration: BoxDecoration(
-        color:
-            open || almostOpen ? AppColors.greenLight : const Color(0xFFC89B72),
+        color: close ? AppColors.greenLight : const Color(0xFFC89B72),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
         border: Border.all(
-          color: open || almostOpen ? AppColors.green : const Color(0xFFAA7B55),
+          color: close ? AppColors.green : const Color(0xFFAA7B55),
           width: 3,
         ),
         boxShadow:
-            almostOpen || open
+            close
                 ? const [
                   BoxShadow(
-                    color: Color(0x555FAF7B),
-                    blurRadius: 22,
+                    color: Color(0x445FAF7B),
+                    blurRadius: 20,
                     spreadRadius: 2,
                   ),
                 ]
@@ -400,29 +416,76 @@ class _ExitDoor extends StatelessWidget {
           Text(
             'EXIT',
             style: TextStyle(
-              color: almostOpen || open ? AppColors.green : Colors.white,
-              fontSize: 11,
+              color: close ? AppColors.green : Colors.white,
+              fontSize: 10,
               fontWeight: FontWeight.w900,
               letterSpacing: 1,
             ),
           ),
-
-          const SizedBox(height: 12),
-
+          const SizedBox(height: 11),
           Icon(
-            almostOpen || open ? Icons.lock_open_rounded : Icons.lock_rounded,
-            color: almostOpen || open ? AppColors.green : Colors.white,
-            size: 27,
+            close ? Icons.lock_open_rounded : Icons.lock_rounded,
+            color: close ? AppColors.green : Colors.white,
+            size: 25,
           ),
-
-          const SizedBox(height: 8),
-
+          const SizedBox(height: 7),
           Text(
-            '$progress/5',
+            '$completed/5',
             style: TextStyle(
-              color: almostOpen || open ? AppColors.green : Colors.white70,
+              color: close ? AppColors.green : Colors.white70,
               fontSize: 10,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ActionBanner extends StatelessWidget {
+  const _ActionBanner({required this.type});
+
+  final ChallengeType type;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 18),
+      decoration: BoxDecoration(
+        color: AppColors.coral,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white, width: 2),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x55E76F51),
+            blurRadius: 18,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            switch (type) {
+              ChallengeType.flyingBooks =>
+                Icons.keyboard_double_arrow_down_rounded,
+              ChallengeType.jumpCables =>
+                Icons.keyboard_double_arrow_up_rounded,
+              ChallengeType.distractions => Icons.swap_horiz_rounded,
+            },
+            color: Colors.white,
+            size: 25,
+          ),
+          const SizedBox(width: 7),
+          Text(
+            type.actionMessage,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 17,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1.2,
             ),
           ),
         ],

@@ -16,7 +16,7 @@ class EscapeYourStudyRoomApp extends StatelessWidget {
       title: 'Escape Your Study Room',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      home: const DodgeBooksScreen(),
+      home: const EscapeGameScreen(),
     );
   }
 }
