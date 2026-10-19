@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
 
 abstract final class AppColors {
-  static const background = Color(0xFF06051A);
-  static const surface = Color(0xFF0D0B2A);
-  static const card = Color(0xFF1C1A4E);
-  static const elevated = Color(0xFF252364);
-  static const border = Color(0xFF2A275F);
+  static const background = Color(0xFF101415);
+  static const surface = Color(0xFF171C1E);
+  static const card = Color(0xFF202628);
 
-  static const purple = Color(0xFF7C3AED);
-  static const purpleLight = Color(0xFFA78BFA);
-  static const green = Color(0xFF22C55E);
-  static const greenLight = Color(0xFF4ADE80);
-  static const orange = Color(0xFFF59E0B);
-  static const red = Color(0xFFEF4444);
+  static const border = Color(0xFF394245);
 
-  static const text = Color(0xFFEEEEFF);
-  static const textSoft = Color(0xFFC4B5FD);
-  static const textMuted = Color(0xFF8A83B6);
+  static const lime = Color(0xFFB7FF3C);
+  static const cyan = Color(0xFF27E1FF);
+
+  static const yellow = Color(0xFFFFD23F);
+  static const red = Color(0xFFFF5C5C);
+
+  static const text = Color(0xFFF5F7F6);
+  static const textSoft = Color(0xFFC4CDCA);
+  static const textMuted = Color(0xFF7D8985);
+
+  static const black = Color(0xFF090C0D);
 }
 
 abstract final class AppTheme {
@@ -25,30 +26,31 @@ abstract final class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: AppColors.background,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.purple,
-        brightness: Brightness.dark,
+      colorScheme: const ColorScheme.dark(
+        primary: AppColors.lime,
+        secondary: AppColors.cyan,
+        surface: AppColors.surface,
+        error: AppColors.red,
       ),
-      textTheme: const TextTheme(
-        headlineLarge: TextStyle(
-          color: AppColors.text,
-          fontWeight: FontWeight.w900,
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: AppColors.lime,
+          foregroundColor: AppColors.black,
+          minimumSize: const Size.fromHeight(56),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
         ),
-        headlineMedium: TextStyle(
-          color: AppColors.text,
-          fontWeight: FontWeight.w800,
-        ),
-        titleLarge: TextStyle(
-          color: AppColors.text,
-          fontWeight: FontWeight.w800,
-        ),
-        bodyLarge: TextStyle(
-          color: AppColors.text,
-          fontWeight: FontWeight.w600,
-        ),
-        bodyMedium: TextStyle(
-          color: AppColors.textSoft,
-          fontWeight: FontWeight.w600,
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.text,
+          minimumSize: const Size.fromHeight(52),
+          side: const BorderSide(color: AppColors.border),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       ),
     );

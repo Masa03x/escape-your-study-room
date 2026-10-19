@@ -19,244 +19,141 @@ class StudyRoomScene extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(26),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final width = constraints.maxWidth;
-          final height = constraints.maxHeight;
-          final bookLeft = width * (0.92 - (bookProgress * 0.72));
-          final bookTop =
-              height * 0.30 - flyingBookVerticalOffset(bookProgress);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
 
-          return Stack(
-            fit: StackFit.expand,
+        final bookPosition = width * (0.82 - (bookProgress * 0.65));
+
+        return Container(
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Stack(
             children: [
-              const DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Color(0xFF181443),
-                      Color(0xFF0D0B2A),
-                      Color(0xFF08071E),
-                    ],
+              Positioned(
+                left: 14,
+                top: 14,
+                child: Text(
+                  'DODGE AREA',
+                  style: TextStyle(
+                    color: AppColors.cyan,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.5,
                   ),
                 ),
               ),
-              Positioned(
-                left: 20,
-                top: 26,
-                child: _Shelf(progress: dodgedBooks),
-              ),
-              const Positioned(
-                right: 24,
-                top: 24,
-                child: _Window(),
-              ),
+
               Positioned(
                 right: 18,
-                bottom: 30,
-                child: _ExitDoor(active: dodgedBooks >= 4),
+                bottom: 28,
+                child: _ExitDoor(dodgedBooks: dodgedBooks),
               ),
+
               Positioned(
-                left: 18,
-                right: 18,
-                bottom: 18,
-                child: Container(
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF17142F),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: (width / 2) - 34,
-                bottom: squatting ? 42 : 46,
+                left: 24,
+                bottom: squatting ? 30 : 46,
                 child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 160),
-                  width: 68,
-                  height: squatting ? 62 : 98,
-                  alignment: Alignment.bottomCenter,
+                  duration: const Duration(milliseconds: 180),
+                  width: squatting ? 72 : 60,
+                  height: squatting ? 45 : 72,
+                  alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: AppColors.purple,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      color: AppColors.purpleLight,
-                      width: 2,
+                    color: AppColors.cyan,
+                    borderRadius: BorderRadius.circular(squatting ? 10 : 30),
+                  ),
+                  child: Text(
+                    squatting ? 'SQUAT' : 'YOU',
+                    style: const TextStyle(
+                      color: AppColors.black,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 11,
                     ),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x667C3AED),
-                        blurRadius: 18,
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    squatting
-                        ? Icons.airline_seat_legroom_reduced_rounded
-                        : Icons.person_rounded,
-                    size: squatting ? 46 : 64,
-                    color: AppColors.text,
                   ),
                 ),
               ),
+
               Positioned(
-                left: bookLeft,
-                top: bookTop,
-                child: FlyingBook(
-                  progress: bookProgress,
-                  isDangerous: canDodge,
-                ),
+                left: bookPosition,
+                top: constraints.maxHeight * 0.30,
+                child: FlyingBook(canDodge: canDodge),
               ),
+
               if (canDodge)
                 Positioned(
-                  left: 0,
-                  right: 0,
-                  top: 16,
-                  child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 9,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.orange,
-                        borderRadius: BorderRadius.circular(99),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x55F59E0B),
-                            blurRadius: 18,
-                          ),
-                        ],
-                      ),
-                      child: const Text(
-                        'SQUAT NOW!',
-                        style: TextStyle(
-                          color: Color(0xFF211705),
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.8,
-                        ),
+                  left: 18,
+                  right: 18,
+                  bottom: 12,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 11),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: AppColors.lime,
+                      borderRadius: BorderRadius.circular(7),
+                    ),
+                    child: const Text(
+                      'SQUAT NOW',
+                      style: TextStyle(
+                        color: AppColors.black,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.5,
                       ),
                     ),
                   ),
                 ),
             ],
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _Shelf extends StatelessWidget {
-  const _Shelf({required this.progress});
-
-  final int progress;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 86,
-      height: 116,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: const Color(0xFF201B45),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _bookRow(progress > 0),
-          _bookRow(progress > 2),
-          _bookRow(progress > 3),
-        ],
-      ),
-    );
-  }
-
-  Widget _bookRow(bool defeated) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(defeated ? '📘' : '📕', style: const TextStyle(fontSize: 18)),
-        const SizedBox(width: 4),
-        Text(defeated ? '😵' : '😠', style: const TextStyle(fontSize: 14)),
-      ],
-    );
-  }
-}
-
-class _Window extends StatelessWidget {
-  const _Window();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 92,
-      height: 68,
-      decoration: BoxDecoration(
-        color: const Color(0xFF171D46),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.purpleLight, width: 2),
-      ),
-      child: const Center(
-        child: Text(
-          '✦  ☾  ✦',
-          style: TextStyle(color: AppColors.textSoft),
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
 
 class _ExitDoor extends StatelessWidget {
-  const _ExitDoor({required this.active});
+  const _ExitDoor({required this.dodgedBooks});
 
-  final bool active;
+  final int dodgedBooks;
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      width: 74,
-      height: 120,
+    final almostFinished = dodgedBooks >= 4;
+
+    return Container(
+      width: 58,
+      height: 100,
       decoration: BoxDecoration(
-        color: const Color(0xFF201C3D),
-        borderRadius: BorderRadius.circular(14),
+        color: AppColors.black,
+        borderRadius: BorderRadius.circular(6),
         border: Border.all(
-          color: active ? AppColors.green : AppColors.border,
-          width: 3,
+          color: almostFinished ? AppColors.lime : AppColors.border,
+          width: 2,
         ),
-        boxShadow: active
-            ? const [
-                BoxShadow(
-                  color: Color(0x7722C55E),
-                  blurRadius: 24,
-                  spreadRadius: 3,
-                ),
-              ]
-            : const [],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Icon(
+            almostFinished
+                ? Icons.lock_open_rounded
+                : Icons.lock_outline_rounded,
+            color: almostFinished ? AppColors.lime : AppColors.textMuted,
+          ),
+          const SizedBox(height: 8),
           Text(
             'EXIT',
             style: TextStyle(
-              color: active ? AppColors.greenLight : AppColors.textMuted,
+              color: almostFinished ? AppColors.lime : AppColors.textMuted,
+              fontSize: 9,
               fontWeight: FontWeight.w900,
-              fontSize: 12,
             ),
           ),
-          const SizedBox(height: 12),
-          Icon(
-            Icons.door_front_door_rounded,
-            color: active ? AppColors.greenLight : AppColors.textMuted,
-            size: 36,
+          const SizedBox(height: 4),
+          Text(
+            '$dodgedBooks/5',
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
           ),
         ],
       ),
